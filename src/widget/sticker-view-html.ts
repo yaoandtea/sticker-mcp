@@ -3,7 +3,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 /** Bump the version suffix whenever the widget changes — hosts cache ui:// resources by URI. */
-export const STICKER_VIEW_URI = "ui://sticker-view/mcp-app-v7.html";
+export const STICKER_VIEW_URI = "ui://sticker-view/xiaoyao-xiaocha-mcp-app-v8.html";
 export const STICKER_VIEW_MIME = "text/html;profile=mcp-app";
 
 const CSS = `
@@ -12,11 +12,11 @@ const CSS = `
   body { margin: 0; background: transparent;
          font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC",
                       "Hiragino Sans", "Microsoft YaHei UI", "Noto Sans SC", sans-serif; }
-  #root { padding: 4px 0; }
+  #root { padding: 0; line-height: 0; }
   .sticker { display: inline-block; }
   .sticker img {
-    display: block; max-width: 200px; max-height: 200px;
-    border-radius: 14px; user-select: none; -webkit-user-drag: none;
+    display: block; width: auto; height: auto; max-width: 180px; max-height: 180px;
+    border: 0; background: transparent; user-select: none; -webkit-user-drag: none;
     animation: pop .32s cubic-bezier(.21, 1.25, .5, 1) both;
   }
   @keyframes pop {

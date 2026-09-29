@@ -1,7 +1,7 @@
 {
   "name": "@asashiki/sticker-mcp",
-  "version": "1.1.0",
-  "description": "MCP server that lets AI send expressive stickers in chat, with an MCP Apps inline widget and a standalone web admin page.",
+  "version": "1.2.0",
+  "description": "小遥×小茶表情包 MCP，基于 asashiki/sticker-mcp 的内联贴纸与管理后台。",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -31,9 +31,11 @@
     "build:server": "tsup src/server.ts src/stdio.ts src/index.ts --format esm --platform node --target node20 --out-dir dist --clean",
     "build:assets": "node scripts/copy-assets.mjs",
     "build": "npm run build:server && npm run build:widget && npm run build:assets",
+    "migrate:legacy": "node scripts/migrate-legacy-stickers.mjs",
     "start": "node dist/server.js",
     "start:stdio": "node dist/stdio.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

@@ -87,7 +87,7 @@ function tryChatGpt() {
 
 async function tryMcpApps() {
   try {
-    const app = new App({ name: "sticker-mcp", version: "1.1.0" });
+    const app = new App({ name: "xiaoyao-xiaocha-sticker-mcp", version: "1.2.0" });
     /* Register before connect() — host may send toolresult during/right after handshake */
     app.addEventListener("toolresult", (params: { structuredContent?: unknown; content?: Array<{ type: string; text?: string }> }) => {
       console.debug("[sticker] ontoolresult:", JSON.stringify(params)?.slice(0, 300));

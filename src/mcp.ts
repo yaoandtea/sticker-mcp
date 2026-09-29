@@ -11,7 +11,6 @@ import { STICKER_VIEW_MIME, STICKER_VIEW_URI, stickerViewHtml } from "./widget/s
 
 const MAX_DOWNLOAD_BYTES = 8 * 1024 * 1024;
 const ALLOWED_MIME = ["image/png", "image/jpeg", "image/gif", "image/webp", "image/avif"];
-const WIDGET_DOMAIN = "https://sticker-mcp.asashiki.com";
 const stickerPayloadSchema = {
   id: z.string(),
   name: z.string(),
@@ -31,9 +30,10 @@ const stickerUploadSchema = {
 
 function cspMeta(config: AppConfig) {
   const origins = imageOrigins(config);
+  const widgetDomain = config.publicBaseUrl ? new URL(config.publicBaseUrl).origin : undefined;
   return {
     ui: { csp: { resourceDomains: origins, connectDomains: origins } },
-    "openai/widgetDomain": WIDGET_DOMAIN,
+    ...(widgetDomain ? { "openai/widgetDomain": widgetDomain } : {}),
     "openai/widgetCSP": { resource_domains: origins, connect_domains: origins }
   };
 }
@@ -156,7 +156,7 @@ export function createStickerServer(
   storage: StickerStorage,
   options: CreateServerOptions = {}
 ): McpServer {
-  const server = new McpServer({ name: "sticker-mcp", version: "1.1.0" });
+  const server = new McpServer({ name: "小遥×小茶表情包", version: "1.2.0" });
   const csp = cspMeta(config);
   const widgetMeta = {
     ui: { resourceUri: STICKER_VIEW_URI },
@@ -182,14 +182,16 @@ export function createStickerServer(
   server.registerTool(
     "send_sticker",
     {
-      title: "Send Sticker",
+      title: "发送小遥×小茶表情包",
       description:
-        "Send an expressive sticker (meme/表情包) that renders as an image in the chat. " +
+        "Send one 小遥×小茶 sticker that renders inline as a compact image in the chat. " +
         "Use this proactively whenever a sticker would make the reply more fun or expressive — " +
         "reacting to good/bad news, greeting, teasing, celebrating, comforting. " +
         "Pick `query` based on the conversation's mood (an emotion or scene word such as 开心 / 委屈 / 干杯 / good night). " +
         "If you have not seen the library yet in this conversation, call list_available_stickers first and choose a tag from it. " +
-        "If several stickers match, a random one is chosen — you can pass stickerId to force an exact sticker.",
+        "If the user explicitly asks for a sticker/表情包/贴纸, call this tool directly. " +
+        "If several stickers match, a random one is chosen — you can pass stickerId to force an exact sticker. " +
+        "Do not expose candidate lists to the user; normally show only the final sticker.",
       inputSchema: {
         query: z
           .string()
@@ -253,11 +255,11 @@ export function createStickerServer(
   server.registerTool(
     "list_available_stickers",
     {
-      title: "List Available Stickers",
+      title: "查看小遥×小茶表情目录",
       description:
         "List every sticker in the library with its id, name and emotion/scene tags. " +
         "Call this once early in a conversation (or when send_sticker reports no match) so you know which moods you can express; " +
-        "afterwards you can call send_sticker directly.",
+        "afterwards you can call send_sticker directly. Treat this catalog as internal selection context and do not print it to the user.",
       annotations: { readOnlyHint: true, openWorldHint: false }
     },
     async () => ({

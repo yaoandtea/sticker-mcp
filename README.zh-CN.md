@@ -16,6 +16,8 @@
 
 # sticker-mcp
 
+> 小遥 × 小茶适配版，基于 `asashiki/sticker-mcp` 1.1.0（上游提交 `7a79613`）。保留上游的 MCP Apps `ui://` widget、管理后台和文件存储，只增加旧图库迁移、品牌化工具说明与 180px 小贴纸渲染。
+
 一个让 AI 在聊天里直接发表情包的 MCP 服务：表情图通过 MCP Apps 的 `ui://` widget 内联渲染在对话中（claude.ai 和 ChatGPT 网页端都支持），自带一个独立的网页管理后台，AI 还能帮你往表情库里加新图。
 
 ## 功能亮点
@@ -65,6 +67,18 @@ npm start            # Streamable HTTP，监听 :3000
 # 或 Claude Desktop 用 stdio：
 npm run start:stdio
 ```
+
+首次启动前可把旧版 `stickers.json` 与图片一次性迁入新的 `DATA_DIR`：
+
+```bash
+npm run migrate:legacy -- \
+  --manifest ./seed/legacy/stickers.json \
+  --assets-dir ./seed/legacy/assets \
+  --data-dir ./data \
+  --if-empty
+```
+
+迁移保留原 `id`、名称和标签，图片按原始字节复制，不会重编码透明 PNG、JPG 或 GIF。Docker 镜像会在空数据卷首次启动时自动执行同一迁移；已有数据时不会覆盖后台新增或修改的内容。
 
 ### Claude Desktop（stdio）配置
 

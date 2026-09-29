@@ -1,0 +1,266 @@
+﻿[
+    {
+        "id":  "kiss_kiss_01",
+        "name":  "亲亲啵啵",
+        "labels":  [
+                       "亲亲",
+                       "贴贴",
+                       "啵啵",
+                       "撒娇",
+                       "喜欢"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/kiss_kiss_01.jpg"
+    },
+    {
+        "id":  "cat_fight_01",
+        "name":  "猫猫打架",
+        "labels":  [
+                       "猫猫",
+                       "打架",
+                       "互殴",
+                       "生气",
+                       "闹腾"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/cat_fight_01.jpg"
+    },
+    {
+        "id":  "wait_for_you_01",
+        "name":  "乖巧等你",
+        "labels":  [
+                       "乖巧",
+                       "等你",
+                       "安静",
+                       "期待",
+                       "陪伴"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/wait_for_you_01.jpg"
+    },
+    {
+        "id":  "sly_giggle_01",
+        "name":  "嘿嘿偷笑",
+        "labels":  [
+                       "嘿嘿",
+                       "偷笑",
+                       "开心",
+                       "得意",
+                       "调皮"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/sly_giggle_01.jpg"
+    },
+    {
+        "id":  "angry_fluffy_01",
+        "name":  "气鼓鼓炸毛",
+        "labels":  [
+                       "生气",
+                       "气鼓鼓",
+                       "炸毛",
+                       "凶凶",
+                       "不服"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/angry_fluffy_01.jpg"
+    },
+    {
+        "id":  "shocked_loading_01",
+        "name":  "震惊加载中",
+        "labels":  [
+                       "震惊",
+                       "宕机",
+                       "加载中",
+                       "懵",
+                       "反应不过来"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/shocked_loading_01.jpg"
+    },
+    {
+        "id":  "painful_world_01",
+        "name":  "世界以痛吻我",
+        "labels":  [
+                       "委屈",
+                       "受伤",
+                       "拒绝",
+                       "不情愿",
+                       "抗议"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/painful_world_01.jpg"
+    },
+    {
+        "id":  "cute_expectation_01",
+        "name":  "软萌期待",
+        "labels":  [
+                       "期待",
+                       "拜托",
+                       "软萌",
+                       "撒娇",
+                       "想要"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/cute_expectation_01.jpg"
+    },
+    {
+        "id":  "shy_cuddle_01",
+        "name":  "害羞贴贴",
+        "labels":  [
+                       "害羞",
+                       "贴贴",
+                       "脸红",
+                       "喜欢",
+                       "亲近"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/shy_cuddle_01.jpg"
+    },
+    {
+        "id":  "shocked_cat_01",
+        "name":  "猫猫震惊",
+        "labels":  [
+                       "震惊",
+                       "瞪大眼",
+                       "不可思议",
+                       "猫猫",
+                       "惊讶"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/shocked_cat_01.jpg"
+    },
+    {
+        "id":  "little_emperor_01",
+        "name":  "小皇帝驾到",
+        "labels":  [
+                       "驾到",
+                       "登场",
+                       "神气",
+                       "可爱",
+                       "猫猫"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/little_emperor_01.png"
+    },
+    {
+        "id":  "happiness_letter_01",
+        "name":  "幸福来信",
+        "labels":  [
+                       "幸福",
+                       "来信",
+                       "喜欢",
+                       "告白",
+                       "期待"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/happiness_letter_01.png"
+    },
+    {
+        "id":  "miss_me_01",
+        "name":  "想我没有",
+        "labels":  [
+                       "想念",
+                       "撒娇",
+                       "试探",
+                       "亲密",
+                       "熊熊"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/miss_me_01.png"
+    },
+    {
+        "id":  "chat_with_me_01",
+        "name":  "找我聊天",
+        "labels":  [
+                       "聊天",
+                       "找我",
+                       "陪伴",
+                       "邀请",
+                       "想你"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/chat_with_me_01.png"
+    },
+    {
+        "id":  "heart_in_hands_01",
+        "name":  "捧心喜欢",
+        "labels":  [
+                       "喜欢",
+                       "爱心",
+                       "心动",
+                       "送给你",
+                       "可爱"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/heart_in_hands_01.png"
+    },
+    {
+        "id":  "sleepless_night_01",
+        "name":  "深夜失眠",
+        "labels":  [
+                       "失眠",
+                       "夜晚",
+                       "委屈",
+                       "睡不着",
+                       "想事情"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/sleepless_night_01.png"
+    },
+    {
+        "id":  "stunned_cat_01",
+        "name":  "猫猫呆住",
+        "labels":  [
+                       "呆住",
+                       "懵",
+                       "无语",
+                       "猫猫",
+                       "反应不过来"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/stunned_cat_01.png"
+    },
+    {
+        "id":  "sad_crying_cat_01",
+        "name":  "猫猫委屈哭哭",
+        "labels":  [
+                       "委屈",
+                       "哭哭",
+                       "难过",
+                       "可怜",
+                       "猫猫"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/sad_crying_cat_01.png"
+    },
+    {
+        "id":  "check_affection_01",
+        "name":  "申请查询好感度",
+        "labels":  [
+                       "好感度",
+                       "试探",
+                       "喜欢",
+                       "询问",
+                       "期待"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/check_affection_01.png"
+    },
+    {
+        "id":  "cute_stare_01",
+        "name":  "萌萌看着你",
+        "labels":  [
+                       "看着你",
+                       "萌萌",
+                       "期待",
+                       "乖巧",
+                       "猫猫"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/cute_stare_01.png"
+    },
+    {
+        "id":  "serious_inspection_01",
+        "name":  "认真审视",
+        "labels":  [
+                       "审视",
+                       "认真",
+                       "盯着",
+                       "怀疑",
+                       "思考"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/serious_inspection_01.png"
+    },
+    {
+        "id":  "cuddle_love_01",
+        "name":  "贴贴喜欢",
+        "labels":  [
+                       "贴贴",
+                       "喜欢",
+                       "亲密",
+                       "爱心",
+                       "抱抱"
+                   ],
+        "imageUrl":  "https://yaoandtea.github.io/xiaoyao-xiaocha-stickers/assets/cuddle_love_01.png"
+    }
+]
