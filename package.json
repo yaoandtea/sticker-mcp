@@ -34,12 +34,13 @@
     "build:worker": "npm run build:widget",
     "dev:worker": "npm run build:worker && wrangler dev",
     "deploy:worker": "npm run build:worker && wrangler deploy",
-    "seed:r2": "node scripts/seed-r2.mjs",
+    "seed:kv": "node scripts/seed-kv.mjs",
     "migrate:legacy": "node scripts/migrate-legacy-stickers.mjs",
     "start": "node dist/server.js",
     "start:stdio": "node dist/stdio.js",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/*.test.mjs"
+    "test": "node --test test/*.test.mjs && npm run test:kv",
+    "test:kv": "node node_modules/typescript/bin/tsc --ignoreConfig --types node --outDir dist/kv-test --module NodeNext --moduleResolution NodeNext --target ES2022 --strict --esModuleInterop --skipLibCheck test/kv-storage.test.ts src/kv-storage.ts src/image-mime.ts src/storage-contract.ts && node --test dist/kv-test/test/kv-storage.test.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

@@ -2,37 +2,33 @@ import { Buffer } from "node:buffer";
 import { ALLOWED_IMAGE_MIME, detectImageMime, extensionForMime } from "./image-mime.js";
 import type { Sticker, StickerStorageLike, StickerWithThumb } from "./storage-contract.js";
 
-export interface R2ObjectBodyLike {
-  arrayBuffer(): Promise<ArrayBuffer>;
-  body: ReadableStream;
-  httpMetadata?: { contentType?: string };
-}
-
-export interface R2BucketLike {
-  get(key: string): Promise<R2ObjectBodyLike | null>;
-  put(key: string, value: string | ArrayBuffer | ArrayBufferView, options?: { httpMetadata?: { contentType?: string } }): Promise<unknown>;
-  delete(key: string): Promise<unknown>;
+export interface KVNamespaceLike {
+  get(key: string, type: "text"): Promise<string | null>;
+  get(key: string, type: "arrayBuffer"): Promise<ArrayBuffer | null>;
+  put(
+    key: string,
+    value: string | ArrayBuffer | ArrayBufferView,
+    options?: { expiration?: number; expirationTtl?: number; metadata?: unknown }
+  ): Promise<void>;
+  delete(key: string): Promise<void>;
 }
 
 const MANIFEST_KEY = "stickers.json";
 
-export class R2StickerStorage implements StickerStorageLike {
-  constructor(private bucket: R2BucketLike) {}
+export class KVStickerStorage implements StickerStorageLike {
+  constructor(private namespace: KVNamespaceLike) {}
 
   async init() {
-    if (!await this.bucket.get(MANIFEST_KEY)) await this.writeManifest([]);
+    if (!await this.namespace.get(MANIFEST_KEY, "text")) await this.writeManifest([]);
   }
 
   private async writeManifest(stickers: Sticker[]) {
-    await this.bucket.put(MANIFEST_KEY, `${JSON.stringify(stickers, null, 2)}\n`, {
-      httpMetadata: { contentType: "application/json; charset=utf-8" }
-    });
+    await this.namespace.put(MANIFEST_KEY, `${JSON.stringify(stickers, null, 2)}\n`);
   }
 
   async getAllStickers(): Promise<Sticker[]> {
-    const object = await this.bucket.get(MANIFEST_KEY);
-    if (!object) return [];
-    return JSON.parse(Buffer.from(await object.arrayBuffer()).toString("utf8").replace(/^\uFEFF/, "")) as Sticker[];
+    const text = await this.namespace.get(MANIFEST_KEY, "text");
+    return text ? JSON.parse(text.replace(/^\uFEFF/, "")) as Sticker[] : [];
   }
 
   async getById(id: string) {
@@ -54,7 +50,7 @@ export class R2StickerStorage implements StickerStorageLike {
     if (!(ALLOWED_IMAGE_MIME as readonly string[]).includes(detected)) throw new Error(`Unsupported image type '${detected || mimeType}'.`);
     const id = `${Date.now()}-${crypto.randomUUID().slice(0, 6)}`;
     const key = `images/${id}.${extensionForMime(detected)}`;
-    await this.bucket.put(key, imageBuffer, { httpMetadata: { contentType: detected } });
+    await this.namespace.put(key, imageBuffer);
     const sticker: Sticker = {
       id,
       name: name.trim(),
@@ -90,7 +86,7 @@ export class R2StickerStorage implements StickerStorageLike {
     if (index === -1) return false;
     const [deleted] = stickers.splice(index, 1);
     await this.writeManifest(stickers);
-    if (deleted) await this.bucket.delete(deleted.filepath);
+    if (deleted) await this.namespace.delete(deleted.filepath);
     return true;
   }
 
@@ -99,16 +95,19 @@ export class R2StickerStorage implements StickerStorageLike {
   }
 
   async readForInline(sticker: Sticker) {
-    const object = await this.bucket.get(sticker.filepath);
-    if (!object) throw new Error(`Missing image for sticker '${sticker.id}'.`);
-    return { buffer: Buffer.from(await object.arrayBuffer()), mimeType: object.httpMetadata?.contentType || sticker.mimeType };
+    const bytes = await this.namespace.get(sticker.filepath, "arrayBuffer");
+    if (!bytes) throw new Error(`Missing image for sticker '${sticker.id}'.`);
+    return { buffer: Buffer.from(bytes), mimeType: sticker.mimeType };
   }
 
   async withThumbs(stickers: Sticker[]): Promise<StickerWithThumb[]> {
     return stickers.map((sticker) => ({ ...sticker, thumb: null }));
   }
 
-  getObject(key: string) {
-    return this.bucket.get(key);
+  async getObject(key: string) {
+    const bytes = await this.namespace.get(key, "arrayBuffer");
+    if (!bytes) return null;
+    const buffer = Buffer.from(bytes);
+    return { buffer, mimeType: detectImageMime(buffer, "application/octet-stream") };
   }
 }

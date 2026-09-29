@@ -4,10 +4,10 @@
   "main": "src/worker.ts",
   "compatibility_date": "2026-09-29",
   "compatibility_flags": ["nodejs_compat"],
-  "r2_buckets": [
+  "kv_namespaces": [
     {
       "binding": "STICKERS",
-      "bucket_name": "xiaoyao-xiaocha-stickers-v2"
+      "id": "327f4ed63209417491d384209f9841fa"
     }
   ],
   "rules": [

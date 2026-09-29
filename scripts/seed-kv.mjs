@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const seedDir = path.join(root, "seed", "legacy");
-const bucket = "xiaoyao-xiaocha-stickers-v2";
+const binding = "STICKERS";
 
 const mimeByExtension = {
   ".png": "image/png",
@@ -17,7 +17,7 @@ const mimeByExtension = {
   ".avif": "image/avif"
 };
 
-export function buildR2Manifest(legacy) {
+export function buildKVManifest(legacy) {
   return legacy.map((item) => {
     const filename = path.basename(new URL(item.imageUrl).pathname);
     return {
@@ -39,19 +39,23 @@ function runWrangler(args) {
   });
 }
 
+async function putFile(key, filepath) {
+  await runWrangler(["kv", "key", "put", key, "--path", filepath, "--binding", binding, "--remote"]);
+}
+
 async function main() {
   const legacy = JSON.parse((await fs.readFile(path.join(seedDir, "stickers.json"), "utf8")).replace(/^\uFEFF/, ""));
-  const manifest = buildR2Manifest(legacy);
-  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "xiaoyao-r2-seed-"));
+  const manifest = buildKVManifest(legacy);
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "xiaoyao-kv-seed-"));
   try {
     const manifestPath = path.join(tempDir, "stickers.json");
     await fs.writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-    await runWrangler(["r2", "object", "put", `${bucket}/stickers.json`, "--file", manifestPath, "--content-type", "application/json", "--remote", "--force"]);
+    await putFile("stickers.json", manifestPath);
     for (const sticker of manifest) {
       const filename = path.basename(sticker.filepath);
-      await runWrangler(["r2", "object", "put", `${bucket}/${sticker.filepath}`, "--file", path.join(seedDir, "assets", filename), "--content-type", sticker.mimeType, "--remote", "--force"]);
+      await putFile(sticker.filepath, path.join(seedDir, "assets", filename));
     }
-    console.log(`Seeded ${manifest.length} stickers into R2 without re-encoding image bytes.`);
+    console.log(`Seeded ${manifest.length} stickers into Workers KV without re-encoding image bytes.`);
   } finally {
     await fs.rm(tempDir, { recursive: true, force: true });
   }

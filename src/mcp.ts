@@ -132,7 +132,7 @@ function uploadUrl(config: AppConfig, token: string) {
 export interface CreateServerOptions {
   /** Local-only file reader; omit in HTTP and Worker deployments. */
   readLocalFile?: (filePath: string) => Promise<{ buffer: Buffer; mimeType: string }>;
-  /** Worker deployments persist upload slots in R2; Node uses the in-memory default. */
+  /** Worker deployments persist upload slots in cloud storage; Node uses the in-memory default. */
   createUploadSlot?: (name: string, emotions: string[]) => Promise<StickerUploadSlot>;
   /** Pre-bundled widget JavaScript for runtimes without a local filesystem. */
   widgetScript?: string;

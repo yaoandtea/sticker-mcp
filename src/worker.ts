@@ -4,11 +4,11 @@ import adminHtml from "./admin/admin.html";
 import widgetScript from "../dist/widget/sticker-view-widget.global.js";
 import type { AppConfig } from "./config.js";
 import { createStickerServer } from "./mcp.js";
-import { R2StickerStorage, type R2BucketLike } from "./r2-storage.js";
+import { KVStickerStorage, type KVNamespaceLike } from "./kv-storage.js";
 import type { StickerUploadSlot } from "./upload-slots.js";
 
 interface Env {
-  STICKERS: R2BucketLike;
+  STICKERS: KVNamespaceLike;
   PUBLIC_BASE_URL?: string;
   ADMIN_TOKEN?: string;
 }
@@ -40,7 +40,7 @@ function configFor(request: Request, env: Env): AppConfig {
   return {
     port: 443,
     publicBaseUrl: origin,
-    dataDir: "r2://STICKERS",
+    dataDir: "kv://STICKERS",
     mcpHttpPath: "/mcp/sticker",
     allowedOrigins: [origin],
     adminToken: env.ADMIN_TOKEN?.trim() || null
@@ -60,15 +60,15 @@ async function createUploadSlot(env: Env, name: string, emotions: string[]): Pro
     expiresAt: Date.now() + UPLOAD_TTL_MS
   };
   await env.STICKERS.put(uploadKey(token), JSON.stringify(slot), {
-    httpMetadata: { contentType: "application/json; charset=utf-8" }
+    expiration: Math.ceil(slot.expiresAt / 1000)
   });
   return slot;
 }
 
 async function readUploadSlot(env: Env, token: string): Promise<StickerUploadSlot | null> {
-  const object = await env.STICKERS.get(uploadKey(token));
-  if (!object) return null;
-  const slot = JSON.parse(Buffer.from(await object.arrayBuffer()).toString("utf8")) as StickerUploadSlot;
+  const text = await env.STICKERS.get(uploadKey(token), "text");
+  if (!text) return null;
+  const slot = JSON.parse(text) as StickerUploadSlot;
   if (slot.expiresAt <= Date.now()) {
     await env.STICKERS.delete(uploadKey(token));
     return null;
@@ -76,7 +76,7 @@ async function readUploadSlot(env: Env, token: string): Promise<StickerUploadSlo
   return slot;
 }
 
-async function handleApi(request: Request, env: Env, storage: R2StickerStorage, pathname: string) {
+async function handleApi(request: Request, env: Env, storage: KVStickerStorage, pathname: string) {
   if (!isAdmin(request, env)) return json({ error: "Admin token required" }, 401);
 
   if (pathname === "/api/stickers" && request.method === "GET") {
@@ -116,12 +116,12 @@ export default {
     try {
       if (request.method === "OPTIONS") return cors(new Response(null, { status: 204 }));
       const url = new URL(request.url);
-      const storage = new R2StickerStorage(env.STICKERS);
+      const storage = new KVStickerStorage(env.STICKERS);
       await storage.init();
 
       if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/healthz")) {
         const stickers = await storage.getAllStickers();
-        return cors(json({ ok: true, service: "xiaoyao-xiaocha-sticker-mcp", transport: "streamable-http", storage: "r2", stickers: stickers.length, mcpEndpoint: `${url.origin}/mcp/sticker` }));
+        return cors(json({ ok: true, service: "xiaoyao-xiaocha-sticker-mcp", transport: "streamable-http", storage: "kv", stickers: stickers.length, mcpEndpoint: `${url.origin}/mcp/sticker` }));
       }
 
       if (request.method === "GET" && (url.pathname === "/admin" || url.pathname === "/admin/")) {
@@ -133,9 +133,9 @@ export default {
         if (!filename) return cors(new Response("Not found", { status: 404 }));
         const object = await storage.getObject(`images/${filename}`);
         if (!object) return cors(new Response("Not found", { status: 404 }));
-        return cors(new Response(object.body, {
+        return cors(new Response(object.buffer, {
           headers: {
-            "Content-Type": object.httpMetadata?.contentType || "application/octet-stream",
+            "Content-Type": object.mimeType,
             "Cache-Control": "public, max-age=86400, immutable"
           }
         }));

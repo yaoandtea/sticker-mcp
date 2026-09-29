@@ -95,17 +95,17 @@ npm run migrate:legacy -- \
 
 ## 远程部署（连接 claude.ai / ChatGPT 网页端）
 
-### Cloudflare Workers + R2（小遥×小茶推荐，免费额度）
+### Cloudflare Workers + KV（小遥×小茶推荐，免 R2 订阅）
 
-这个 Fork 提供 `src/worker.ts` 和 `wrangler.jsonc`，继续使用上游的 `McpServer`、`send_sticker` 与 `ui://` widget，只把 Express/本地文件存储替换成 Cloudflare Web Standard transport 和 R2：
+这个 Fork 提供 `src/worker.ts` 和 `wrangler.jsonc`，继续使用上游的 `McpServer`、`send_sticker` 与 `ui://` widget，只把 Express/本地文件存储替换成 Cloudflare Web Standard transport 和 Workers KV：
 
 1. `npm install`，然后 `npm run build:worker`。
-2. `npx wrangler login`，创建 R2 桶：`npx wrangler r2 bucket create xiaoyao-xiaocha-stickers-v2`。
-3. 首次执行 `npm run seed:r2`，把 22 张原图和转换后的清单原字节导入 R2。
+2. `npx wrangler login`。本项目的免费 KV 命名空间 `xiaoyao-xiaocha-stickers-v2` 已在 `wrangler.jsonc` 中绑定为 `STICKERS`；若部署到另一个 Cloudflare 账户，使用 `npx wrangler kv namespace create xiaoyao-xiaocha-stickers-v2 --binding STICKERS --update-config` 创建并替换绑定。
+3. 首次执行 `npm run seed:kv`，把 22 张原图和转换后的清单原字节导入 KV。
 4. 可选设置后台口令：`npx wrangler secret put ADMIN_TOKEN`。
 5. `npm run deploy:worker`，得到新的 `workers.dev` 地址；MCP 地址为 `https://<新地址>/mcp/sticker`。
 
-Worker 同时提供 `/images/*`、`/admin`、`/api/*` 与 `/healthz`。旧 Cloudflare Worker 不会被覆盖：新 Worker 名称是 `xiaoyao-xiaocha-sticker-mcp-v2`，R2 桶也使用独立的 `xiaoyao-xiaocha-stickers-v2`。
+Worker 同时提供 `/images/*`、`/admin`、`/api/*` 与 `/healthz`。旧 Cloudflare Worker 不会被覆盖：新 Worker 名称是 `xiaoyao-xiaocha-sticker-mcp-v2`，KV 命名空间也使用独立的 `xiaoyao-xiaocha-stickers-v2`。
 
 ### Docker 服务
 

@@ -2,7 +2,7 @@ export interface Sticker {
   id: string;
   name: string;
   emotions: string[];
-  /** Local filepath for Node storage, or R2 object key for Worker storage. */
+  /** Local filepath for Node storage, or KV key for Worker storage. */
   filepath: string;
   mimeType: string;
   addedAt?: string;
