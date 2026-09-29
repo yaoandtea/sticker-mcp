@@ -1,16 +1,14 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import path from "node:path";
-import fs from "node:fs/promises";
-import sharp from "sharp";
 import type { AppConfig } from "./config.js";
 import { imageOrigins } from "./config.js";
-import type { Sticker, StickerStorage } from "./storage.js";
-import { createStickerUploadSlot } from "./upload-slots.js";
+import { ALLOWED_IMAGE_MIME, detectImageMime } from "./image-mime.js";
+import type { Sticker, StickerStorageLike } from "./storage-contract.js";
+import { createStickerUploadSlot, type StickerUploadSlot } from "./upload-slots.js";
 import { STICKER_VIEW_MIME, STICKER_VIEW_URI, stickerViewHtml } from "./widget/sticker-view-html.js";
 
 const MAX_DOWNLOAD_BYTES = 8 * 1024 * 1024;
-const ALLOWED_MIME = ["image/png", "image/jpeg", "image/gif", "image/webp", "image/avif"];
+const ALLOWED_MIME: string[] = [...ALLOWED_IMAGE_MIME];
 const stickerPayloadSchema = {
   id: z.string(),
   name: z.string(),
@@ -50,7 +48,7 @@ export interface StickerPayload {
 
 async function toPayload(
   config: AppConfig,
-  storage: StickerStorage,
+  storage: StickerStorageLike,
   sticker: Sticker,
   matchedQuery: string
 ): Promise<StickerPayload> {
@@ -66,7 +64,7 @@ async function toPayload(
   return { id: sticker.id, name: sticker.name, emotions: sticker.emotions, imageUrl, mimeType, matchedQuery };
 }
 
-async function catalogText(storage: StickerStorage): Promise<string> {
+async function catalogText(storage: StickerStorageLike): Promise<string> {
   const stickers = await storage.getAllStickers();
   if (stickers.length === 0) {
     return "Sticker library is empty. Add stickers with add_sticker when you already have an image URL, or create_sticker_upload when you need to upload attached image bytes directly to this sticker library.";
@@ -76,22 +74,7 @@ async function catalogText(storage: StickerStorage): Promise<string> {
 }
 
 async function detectMime(buffer: Buffer, fallback: string): Promise<string> {
-  try {
-    const meta = await sharp(buffer).metadata();
-    const map: Record<string, string> = {
-      png: "image/png",
-      jpeg: "image/jpeg",
-      jpg: "image/jpeg",
-      gif: "image/gif",
-      webp: "image/webp",
-      avif: "image/avif"
-    };
-    const detected = meta.format ? map[meta.format] : undefined;
-    if (detected) return detected;
-  } catch {
-    // fall through to header-based fallback
-  }
-  return fallback;
+  return detectImageMime(buffer, fallback);
 }
 
 async function readImageUrl(imageUrl: string): Promise<{ buffer: Buffer; mimeType: string }> {
@@ -136,7 +119,7 @@ function describeImageUrl(imageUrl: string): string {
   }
 }
 
-async function addStickerFromImageUrl(storage: StickerStorage, name: string, emotions: string[], imageUrl: string) {
+async function addStickerFromImageUrl(storage: StickerStorageLike, name: string, emotions: string[], imageUrl: string) {
   const { buffer, mimeType } = await readImageUrl(imageUrl);
   return storage.addSticker(name, emotions, buffer, mimeType);
 }
@@ -147,13 +130,17 @@ function uploadUrl(config: AppConfig, token: string) {
 }
 
 export interface CreateServerOptions {
-  /** Tools that read the server's local filesystem are only safe on local stdio transport. */
-  allowLocalFileAccess?: boolean;
+  /** Local-only file reader; omit in HTTP and Worker deployments. */
+  readLocalFile?: (filePath: string) => Promise<{ buffer: Buffer; mimeType: string }>;
+  /** Worker deployments persist upload slots in R2; Node uses the in-memory default. */
+  createUploadSlot?: (name: string, emotions: string[]) => Promise<StickerUploadSlot>;
+  /** Pre-bundled widget JavaScript for runtimes without a local filesystem. */
+  widgetScript?: string;
 }
 
 export function createStickerServer(
   config: AppConfig,
-  storage: StickerStorage,
+  storage: StickerStorageLike,
   options: CreateServerOptions = {}
 ): McpServer {
   const server = new McpServer({ name: "小遥×小茶表情包", version: "1.2.0" });
@@ -174,7 +161,7 @@ export function createStickerServer(
     },
     async () => ({
       contents: [
-        { uri: STICKER_VIEW_URI, mimeType: STICKER_VIEW_MIME, text: stickerViewHtml(), _meta: csp }
+        { uri: STICKER_VIEW_URI, mimeType: STICKER_VIEW_MIME, text: stickerViewHtml(options.widgetScript), _meta: csp }
       ]
     })
   );
@@ -343,7 +330,9 @@ export function createStickerServer(
       }
     },
     async ({ name, emotions }) => {
-      const slot = createStickerUploadSlot(name, emotions);
+      const slot = options.createUploadSlot
+        ? await options.createUploadSlot(name, emotions)
+        : createStickerUploadSlot(name, emotions);
       const url = uploadUrl(config, slot.token);
       console.log(`[create_sticker_upload] token=${slot.token} name="${slot.name}" tags=${JSON.stringify(slot.emotions)}`);
       return {
@@ -368,7 +357,8 @@ export function createStickerServer(
     }
   );
 
-  if (options.allowLocalFileAccess) {
+  const readLocalFile = options.readLocalFile;
+  if (readLocalFile) {
     server.registerTool(
       "add_sticker_by_path",
       {
@@ -385,16 +375,8 @@ export function createStickerServer(
       },
       async ({ name, emotions, filePath }) => {
         try {
-          const absolutePath = path.resolve(filePath);
-          const buffer = await fs.readFile(absolutePath);
+          const { buffer, mimeType } = await readLocalFile(filePath);
           if (buffer.length > MAX_DOWNLOAD_BYTES) throw new Error("Image exceeds the 8MB limit.");
-          const ext = path.extname(absolutePath).toLowerCase();
-          const fallback =
-            ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" :
-            ext === ".gif" ? "image/gif" :
-            ext === ".webp" ? "image/webp" :
-            ext === ".avif" ? "image/avif" : "image/png";
-          const mimeType = await detectMime(buffer, fallback);
           if (!ALLOWED_MIME.includes(mimeType)) throw new Error(`Unsupported image type '${mimeType}'.`);
           const sticker = await storage.addSticker(name, emotions, buffer, mimeType);
           return {

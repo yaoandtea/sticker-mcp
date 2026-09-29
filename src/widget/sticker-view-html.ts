@@ -41,9 +41,9 @@ function widgetJs(): string {
   return cachedJs;
 }
 
-export function stickerViewHtml(): string {
+export function stickerViewHtml(prebuiltWidgetScript?: string): string {
   return `<!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <style>${CSS}</style></head>
-<body><div id="root"></div><script>${widgetJs()}</script></body></html>`;
+<body><div id="root"></div><script>${prebuiltWidgetScript ?? widgetJs()}</script></body></html>`;
 }

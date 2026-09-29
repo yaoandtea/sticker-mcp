@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "xiaoyao-xiaocha-sticker-mcp-v2",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-09-29",
+  "compatibility_flags": ["nodejs_compat"],
+  "r2_buckets": [
+    {
+      "binding": "STICKERS",
+      "bucket_name": "xiaoyao-xiaocha-stickers-v2"
+    }
+  ],
+  "rules": [
+    {
+      "type": "Text",
+      "globs": ["**/*.html", "**/*.global.js"],
+      "fallthrough": true
+    }
+  ]
+}

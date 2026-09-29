@@ -187,7 +187,7 @@ async function main() {
       return;
     }
 
-    const server = createStickerServer(config, storage, { allowLocalFileAccess: false });
+    const server = createStickerServer(config, storage);
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
 
     try {

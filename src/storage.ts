@@ -2,20 +2,8 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
 import sharp from "sharp";
-
-export interface Sticker {
-  id: string;
-  name: string;
-  emotions: string[];
-  filepath: string;
-  mimeType: string;
-  addedAt?: string;
-}
-
-export interface StickerWithThumb extends Sticker {
-  /** Small base64 webp thumbnail (data URI) for gallery rendering. */
-  thumb: string | null;
-}
+import type { Sticker, StickerStorageLike, StickerWithThumb } from "./storage-contract.js";
+export type { Sticker, StickerWithThumb } from "./storage-contract.js";
 
 const THUMB_SIZE = 96;
 /** Stickers larger than this get recompressed before being inlined as base64. */
@@ -45,7 +33,7 @@ async function validateImage(buffer: Buffer, fallbackMimeType: string): Promise<
   return detected;
 }
 
-export class StickerStorage {
+export class StickerStorage implements StickerStorageLike {
   private dataFile: string;
   private imageDir: string;
   private thumbCache = new Map<string, string>();

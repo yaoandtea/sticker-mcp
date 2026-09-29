@@ -7,12 +7,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/asashiki/sticker-mcp.git"
+    "url": "git+https://github.com/yaoandtea/sticker-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/asashiki/sticker-mcp/issues"
+    "url": "https://github.com/yaoandtea/sticker-mcp/issues"
   },
-  "homepage": "https://github.com/asashiki/sticker-mcp#readme",
+  "homepage": "https://github.com/yaoandtea/sticker-mcp#readme",
   "keywords": [
     "mcp",
     "model-context-protocol",
@@ -31,6 +31,10 @@
     "build:server": "tsup src/server.ts src/stdio.ts src/index.ts --format esm --platform node --target node20 --out-dir dist --clean",
     "build:assets": "node scripts/copy-assets.mjs",
     "build": "npm run build:server && npm run build:widget && npm run build:assets",
+    "build:worker": "npm run build:widget",
+    "dev:worker": "npm run build:worker && wrangler dev",
+    "deploy:worker": "npm run build:worker && wrangler deploy",
+    "seed:r2": "node scripts/seed-r2.mjs",
     "migrate:legacy": "node scripts/migrate-legacy-stickers.mjs",
     "start": "node dist/server.js",
     "start:stdio": "node dist/stdio.js",
@@ -51,7 +55,8 @@
     "@types/node": "^24.0.0",
     "tsup": "^8.5.1",
     "tsx": "^4.20.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "wrangler": "^4.39.0"
   },
   "engines": {
     "node": ">=20"

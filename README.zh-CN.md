@@ -95,6 +95,20 @@ npm run migrate:legacy -- \
 
 ## 远程部署（连接 claude.ai / ChatGPT 网页端）
 
+### Cloudflare Workers + R2（小遥×小茶推荐，免费额度）
+
+这个 Fork 提供 `src/worker.ts` 和 `wrangler.jsonc`，继续使用上游的 `McpServer`、`send_sticker` 与 `ui://` widget，只把 Express/本地文件存储替换成 Cloudflare Web Standard transport 和 R2：
+
+1. `npm install`，然后 `npm run build:worker`。
+2. `npx wrangler login`，创建 R2 桶：`npx wrangler r2 bucket create xiaoyao-xiaocha-stickers-v2`。
+3. 首次执行 `npm run seed:r2`，把 22 张原图和转换后的清单原字节导入 R2。
+4. 可选设置后台口令：`npx wrangler secret put ADMIN_TOKEN`。
+5. `npm run deploy:worker`，得到新的 `workers.dev` 地址；MCP 地址为 `https://<新地址>/mcp/sticker`。
+
+Worker 同时提供 `/images/*`、`/admin`、`/api/*` 与 `/healthz`。旧 Cloudflare Worker 不会被覆盖：新 Worker 名称是 `xiaoyao-xiaocha-sticker-mcp-v2`，R2 桶也使用独立的 `xiaoyao-xiaocha-stickers-v2`。
+
+### Docker 服务
+
 1. 复制 `.env.example` 为 `.env`，至少设置 `PUBLIC_BASE_URL`（公网 HTTPS 域名）——widget 从 `PUBLIC_BASE_URL/images/*` 加载表情图，该域名会写进 widget 的 CSP 白名单。不设置时图片会以 base64 内联（本地没问题，托管 iframe 里不稳）。
 2. `docker compose up -d`（或把 `node dist/server.js` 挂在你的反代后面）。
 3. 反向代理 `https://你的域名/mcp/sticker` 到容器 `:3000` 同路径，另外把 `/images/*`、`/admin`、`/api/*` 也一起转发。
