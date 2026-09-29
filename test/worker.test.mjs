@@ -12,6 +12,7 @@ test("Cloudflare Worker keeps the MCP widget routes and persists stickers in KV"
   assert.match(source, /WebStandardStreamableHTTPServerTransport/);
   assert.match(source, /createStickerServer/);
   assert.match(source, /widgetScript/);
+  assert.match(source, /\.\/widget\/sticker-view-widget\.global\.js/);
   assert.match(source, /KVStickerStorage/);
   assert.match(source, /"\/mcp\/sticker"/);
   assert.match(source, /"\/admin"/);

@@ -99,7 +99,7 @@ npm run migrate:legacy -- \
 
 这个 Fork 提供 `src/worker.ts` 和 `wrangler.jsonc`，继续使用上游的 `McpServer`、`send_sticker` 与 `ui://` widget，只把 Express/本地文件存储替换成 Cloudflare Web Standard transport 和 Workers KV：
 
-1. `npm install`，然后 `npm run build:worker`。
+1. `npm install`，然后 `npm run build:worker`。Worker 使用仓库内已经验收的 widget 成品，部署时不会因 Windows 长路径重新编译失败；`src/widget/sticker-view-widget.ts` 仍是可维护源码。
 2. `npx wrangler login`。本项目的免费 KV 命名空间 `xiaoyao-xiaocha-stickers-v2` 已在 `wrangler.jsonc` 中绑定为 `STICKERS`；若部署到另一个 Cloudflare 账户，使用 `npx wrangler kv namespace create xiaoyao-xiaocha-stickers-v2 --binding STICKERS --update-config` 创建并替换绑定。
 3. 首次执行 `npm run seed:kv`，把 22 张原图和转换后的清单原字节导入 KV。
 4. 可选设置后台口令：`npx wrangler secret put ADMIN_TOKEN`。

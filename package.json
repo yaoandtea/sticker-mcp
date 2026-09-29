@@ -31,7 +31,7 @@
     "build:server": "tsup src/server.ts src/stdio.ts src/index.ts --format esm --platform node --target node20 --out-dir dist --clean",
     "build:assets": "node scripts/copy-assets.mjs",
     "build": "npm run build:server && npm run build:widget && npm run build:assets",
-    "build:worker": "npm run build:widget",
+    "build:worker": "node --check src/widget/sticker-view-widget.global.js",
     "dev:worker": "npm run build:worker && wrangler dev",
     "deploy:worker": "npm run build:worker && wrangler deploy",
     "seed:kv": "node scripts/seed-kv.mjs",

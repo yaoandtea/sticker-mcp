@@ -1,7 +1,7 @@
 import { Buffer } from "node:buffer";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import adminHtml from "./admin/admin.html";
-import widgetScript from "../dist/widget/sticker-view-widget.global.js";
+import widgetScript from "./widget/sticker-view-widget.global.js";
 import type { AppConfig } from "./config.js";
 import { createStickerServer } from "./mcp.js";
 import { KVStickerStorage, type KVNamespaceLike } from "./kv-storage.js";
