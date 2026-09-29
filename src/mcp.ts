@@ -25,6 +25,12 @@ const stickerUploadSchema = {
   name: z.string(),
   emotions: z.array(z.string())
 };
+const stickerUpdateSchema = {
+  id: z.string(),
+  name: z.string(),
+  emotions: z.array(z.string()),
+  imageUnchanged: z.literal(true)
+};
 
 function cspMeta(config: AppConfig) {
   const origins = imageOrigins(config);
@@ -252,6 +258,97 @@ export function createStickerServer(
     async () => ({
       content: [{ type: "text", text: await catalogText(storage) }]
     })
+  );
+
+  server.registerTool(
+    "update_sticker",
+    {
+      title: "修改表情名称和标签",
+      description:
+        "Update an existing sticker's display name and/or emotion tags by exact stickerId. " +
+        "Use `emotions` or its alias `tags`; they both replace the complete tag list. " +
+        "This tool only changes metadata and always keeps the original image, file path, format, animation and bytes unchanged. " +
+        "Call list_available_stickers first if the exact stickerId is unknown.",
+      inputSchema: {
+        stickerId: z.string().trim().min(1).describe("Exact sticker id from list_available_stickers."),
+        name: z.string().trim().min(1).max(60).optional().describe("New display name. Omit to keep the current name."),
+        emotions: z
+          .array(z.string().trim().min(1).max(30))
+          .min(1)
+          .max(8)
+          .optional()
+          .describe("Complete replacement emotion/scene tag list. Omit to keep current tags."),
+        tags: z
+          .array(z.string().trim().min(1).max(30))
+          .min(1)
+          .max(8)
+          .optional()
+          .describe("Alias for emotions. Do not provide both emotions and tags.")
+      },
+      outputSchema: stickerUpdateSchema,
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: true,
+        openWorldHint: false
+      }
+    },
+    async ({ stickerId, name, emotions, tags }) => {
+      if (name === undefined && emotions === undefined && tags === undefined) {
+        return {
+          content: [{ type: "text", text: "Provide at least one of name, emotions, or tags to update." }],
+          isError: true
+        };
+      }
+      if (emotions !== undefined && tags !== undefined) {
+        return {
+          content: [{ type: "text", text: "Provide either emotions or tags, not both." }],
+          isError: true
+        };
+      }
+
+      const existing = await storage.getById(stickerId);
+      if (!existing) {
+        return {
+          content: [{ type: "text", text: `No sticker with id '${stickerId}'.` }],
+          isError: true
+        };
+      }
+
+      const requestedTags = emotions ?? tags;
+      const nextTags = requestedTags
+        ? [...new Set(requestedTags.map((tag) => tag.trim()))]
+        : undefined;
+      const updated = await storage.updateSticker(stickerId, {
+        ...(name !== undefined ? { name: name.trim() } : {}),
+        ...(nextTags !== undefined ? { emotions: nextTags } : {})
+      });
+      if (!updated) {
+        return {
+          content: [{ type: "text", text: `Sticker '${stickerId}' disappeared before it could be updated.` }],
+          isError: true
+        };
+      }
+      if (updated.filepath !== existing.filepath || updated.mimeType !== existing.mimeType) {
+        throw new Error(`Storage changed image metadata while updating sticker '${stickerId}'.`);
+      }
+
+      const payload = {
+        id: updated.id,
+        name: updated.name,
+        emotions: updated.emotions,
+        imageUnchanged: true as const
+      };
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Updated sticker '${updated.id}' to '${updated.name}' (tags: ${updated.emotions.join(", ")}). The original image is unchanged.`
+          }
+        ],
+        structuredContent: payload
+      };
+    }
   );
 
   server.registerTool(

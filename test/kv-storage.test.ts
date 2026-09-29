@@ -50,7 +50,15 @@ test("KV storage preserves image bytes and supports search, exact id, update and
   const gif = created[2]!;
   assert.equal((await storage.getById(gif.id))?.id, gif.id);
   assert.equal((await storage.findByQuery("gif")).picked?.id, gif.id);
-  assert.equal((await storage.updateSticker(gif.id, { name: "会动的 GIF", emotions: ["动图"] }))?.name, "会动的 GIF");
+  const imageBeforeUpdate = await storage.readForInline(gif);
+  const updated = await storage.updateSticker(gif.id, { name: "会动的 GIF", emotions: ["动图"] });
+  assert.equal(updated?.name, "会动的 GIF");
+  assert.deepEqual(updated?.emotions, ["动图"]);
+  assert.equal(updated?.filepath, gif.filepath);
+  assert.equal(updated?.mimeType, gif.mimeType);
+  const imageAfterUpdate = await storage.readForInline(updated!);
+  assert.deepEqual(imageAfterUpdate.buffer, imageBeforeUpdate.buffer);
+  assert.equal(imageAfterUpdate.mimeType, imageBeforeUpdate.mimeType);
   assert.equal(await storage.deleteSticker(gif.id), true);
   assert.equal(await storage.getById(gif.id), null);
   assert.equal(kv.values.has(gif.filepath), false);

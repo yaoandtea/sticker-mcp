@@ -19,6 +19,8 @@ test("selection instructions keep candidate lists internal and support exact ids
   assert.match(source, /Do not expose candidate lists to the user/);
   assert.match(source, /stickerId/);
   assert.match(source, /list_available_stickers/);
+  assert.match(source, /update_sticker/);
+  assert.match(source, /imageUnchanged/);
   assert.match(source, /send_sticker/);
 });
 

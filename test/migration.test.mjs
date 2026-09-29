@@ -27,6 +27,9 @@ test("migrates the complete legacy library without changing ids, names, tags, or
 
   const migrated = JSON.parse(await fs.readFile(path.join(dataDir, "stickers.json"), "utf8"));
   assert.deepEqual(migrated.map((item) => item.id), source.map((item) => item.id));
+  const renamed = migrated.find((item) => item.id === "kiss_kiss_01");
+  assert.equal(renamed.name, "气鼓鼓瞪你");
+  assert.deepEqual(renamed.emotions, ["生气", "气鼓鼓", "炸毛", "不满", "闹脾气"]);
   for (const item of source) {
     const target = migrated.find((candidate) => candidate.id === item.id);
     assert.equal(target.name, item.name);

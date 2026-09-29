@@ -35,11 +35,13 @@
     "dev:worker": "npm run build:worker && wrangler dev",
     "deploy:worker": "npm run build:worker && wrangler deploy",
     "seed:kv": "node scripts/seed-kv.mjs",
+    "seed:kv:manifest": "node scripts/seed-kv.mjs --manifest-only",
     "migrate:legacy": "node scripts/migrate-legacy-stickers.mjs",
     "start": "node dist/server.js",
     "start:stdio": "node dist/stdio.js",
     "typecheck": "tsc --noEmit",
-    "test": "node --test test/*.test.mjs && npm run test:kv",
+    "test": "node --test test/*.test.mjs && npm run test:mcp && npm run test:kv",
+    "test:mcp": "node node_modules/typescript/bin/tsc --ignoreConfig --types node --outDir dist/mcp-test --module NodeNext --moduleResolution NodeNext --target ES2022 --strict --esModuleInterop --skipLibCheck test/mcp-update.test.ts && node --test dist/mcp-test/test/mcp-update.test.js",
     "test:kv": "node node_modules/typescript/bin/tsc --ignoreConfig --types node --outDir dist/kv-test --module NodeNext --moduleResolution NodeNext --target ES2022 --strict --esModuleInterop --skipLibCheck test/kv-storage.test.ts src/kv-storage.ts src/image-mime.ts src/storage-contract.ts && node --test dist/kv-test/test/kv-storage.test.js"
   },
   "dependencies": {

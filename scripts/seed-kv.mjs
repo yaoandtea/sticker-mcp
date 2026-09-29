@@ -44,6 +44,7 @@ async function putFile(key, filepath) {
 }
 
 async function main() {
+  const manifestOnly = process.argv.includes("--manifest-only");
   const legacy = JSON.parse((await fs.readFile(path.join(seedDir, "stickers.json"), "utf8")).replace(/^\uFEFF/, ""));
   const manifest = buildKVManifest(legacy);
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "xiaoyao-kv-seed-"));
@@ -51,11 +52,15 @@ async function main() {
     const manifestPath = path.join(tempDir, "stickers.json");
     await fs.writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
     await putFile("stickers.json", manifestPath);
-    for (const sticker of manifest) {
-      const filename = path.basename(sticker.filepath);
-      await putFile(sticker.filepath, path.join(seedDir, "assets", filename));
+    if (!manifestOnly) {
+      for (const sticker of manifest) {
+        const filename = path.basename(sticker.filepath);
+        await putFile(sticker.filepath, path.join(seedDir, "assets", filename));
+      }
     }
-    console.log(`Seeded ${manifest.length} stickers into Workers KV without re-encoding image bytes.`);
+    console.log(manifestOnly
+      ? `Updated ${manifest.length} sticker metadata entries in Workers KV without touching image bytes.`
+      : `Seeded ${manifest.length} stickers into Workers KV without re-encoding image bytes.`);
   } finally {
     await fs.rm(tempDir, { recursive: true, force: true });
   }
