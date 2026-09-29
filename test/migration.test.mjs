@@ -16,7 +16,7 @@ async function sha256(file) {
 
 test("migrates the complete legacy library without changing ids, names, tags, or image bytes", async () => {
   const dataDir = await fs.mkdtemp(path.join(os.tmpdir(), "xiaoyao-stickers-"));
-  const source = JSON.parse(await fs.readFile(path.join(seed, "stickers.json"), "utf8"));
+  const source = JSON.parse((await fs.readFile(path.join(seed, "stickers.json"), "utf8")).replace(/^\uFEFF/, ""));
   const result = await migrateLegacy({
     manifest: path.join(seed, "stickers.json"),
     assetsDir: path.join(seed, "assets"),

@@ -30,7 +30,7 @@ async function readJson(source) {
     if (!response.ok) throw new Error(`Manifest download failed: HTTP ${response.status}`);
     return response.json();
   }
-  return JSON.parse(await fs.readFile(path.resolve(source), "utf8"));
+  return JSON.parse((await fs.readFile(path.resolve(source), "utf8")).replace(/^\uFEFF/, ""));
 }
 
 async function targetHasStickers(dataDir) {

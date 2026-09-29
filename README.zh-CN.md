@@ -114,7 +114,7 @@ npm run migrate:legacy -- \
 | `ALLOWED_ORIGINS` | PUBLIC_BASE_URL 的 origin | CORS 白名单，逗号分隔。 |
 | `MCP_AUTH_PASSWORD` | _(空)_ | 可选的远程连接器密码门禁。留空则关闭授权。 |
 | `DATA_DIR` | `./data` | stickers.json 和 images/ 的位置。 |
-| `ADMIN_TOKEN` | _(空)_ | 设置后 `/admin` 和 `/api/*` 需要口令（Bearer 头或 `?token=`）。 |
+| `ADMIN_TOKEN` | _(空)_ | 设置后管理页调用 `/api/*` 时需要口令；`/admin` 静态页面保持可打开，以便弹出口令输入框。 |
 
 ## OAuth 密码授权
 

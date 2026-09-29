@@ -21,3 +21,13 @@ test("selection instructions keep candidate lists internal and support exact ids
   assert.match(source, /list_available_stickers/);
   assert.match(source, /send_sticker/);
 });
+
+test("widget keeps both ChatGPT and MCP Apps/Work result bridges", async () => {
+  const source = await fs.readFile(path.join(root, "src", "widget", "sticker-view-widget.ts"), "utf8");
+  assert.match(source, /window\.openai/);
+  assert.match(source, /openai:set_globals/);
+  assert.match(source, /ui\/notifications\/tool-result/);
+  assert.match(source, /new App\(/);
+  assert.match(source, /addEventListener\("toolresult"/);
+  assert.match(source, /await app\.connect\(\)/);
+});

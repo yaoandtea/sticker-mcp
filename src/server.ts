@@ -104,7 +104,7 @@ async function main() {
 
   // --- standalone admin page ---
   const here = path.dirname(fileURLToPath(import.meta.url));
-  app.get(["/admin", "/admin/"], adminAuth, async (_req, res) => {
+  app.get(["/admin", "/admin/"], async (_req, res) => {
     // dist/server.js sits next to dist/admin/admin.html; in dev it's src/admin/admin.html.
     for (const candidate of [path.join(here, "admin/admin.html"), path.join(here, "../src/admin/admin.html")]) {
       try {
