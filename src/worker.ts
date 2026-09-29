@@ -30,9 +30,10 @@ function json(data: unknown, status = 200) {
 }
 
 function isAdmin(request: Request, env: Env) {
-  if (!env.ADMIN_TOKEN) return true;
+  const token = env.ADMIN_TOKEN?.trim();
+  if (!token) return false;
   const header = request.headers.get("authorization") ?? "";
-  return header === `Bearer ${env.ADMIN_TOKEN}`;
+  return header === `Bearer ${token}`;
 }
 
 function configFor(request: Request, env: Env): AppConfig {
