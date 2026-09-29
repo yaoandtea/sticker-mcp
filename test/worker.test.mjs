@@ -37,3 +37,9 @@ test("KV seed conversion preserves ids, names, tags and original filenames", () 
     mimeType: "image/gif"
   }]);
 });
+
+test("KV seed launches Wrangler portably without spawning a Windows cmd shim", async () => {
+  const source = await fs.readFile(path.join(root, "scripts", "seed-kv.mjs"), "utf8");
+  assert.match(source, /spawn\(process\.execPath, \[cli, \.\.\.args\]/);
+  assert.doesNotMatch(source, /wrangler\.cmd/);
+});

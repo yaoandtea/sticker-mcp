@@ -31,9 +31,9 @@ export function buildKVManifest(legacy) {
 }
 
 function runWrangler(args) {
-  const local = path.join(root, "node_modules", ".bin", process.platform === "win32" ? "wrangler.cmd" : "wrangler");
+  const cli = path.join(root, "node_modules", "wrangler", "bin", "wrangler.js");
   return new Promise((resolve, reject) => {
-    const child = spawn(local, args, { cwd: root, stdio: "inherit", shell: false });
+    const child = spawn(process.execPath, [cli, ...args], { cwd: root, stdio: "inherit", shell: false });
     child.once("error", reject);
     child.once("exit", (code) => code === 0 ? resolve() : reject(new Error(`wrangler exited with ${code}`)));
   });
